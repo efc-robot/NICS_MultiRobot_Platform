@@ -1,2 +1,2 @@
-#python src/robot_client/scripts/mac2id.py
+export CAR_ID=`python mac2id.py`
 roslaunch xtark_driver xtark_driver.launch
