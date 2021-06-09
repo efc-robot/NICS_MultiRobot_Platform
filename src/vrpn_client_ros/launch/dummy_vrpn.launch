@@ -1,0 +1,5 @@
+<launch>
+
+    <node name="dummy_vrpn" pkg="vrpn_client_ros" type="dummy_vrpn.py" output="screen" respawn="false"/>
+
+</launch>

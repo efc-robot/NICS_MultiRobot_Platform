@@ -1,6 +1,0 @@
-<launch>
-
-    <!-- 启动my节点 -->
-    <node name="fake_vrpn" pkg="fake_vrpn" type="fake_vrpn.py" output="screen" respawn="false"/>
-
-</launch>

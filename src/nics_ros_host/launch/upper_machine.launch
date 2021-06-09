@@ -23,7 +23,7 @@
     </rosparam>
   </node>
 
-  <node pkg="vrpn_client_ros" type="RosWorld.py" name="RosWorld" output="screen">
+  <node pkg="nics_ros_host" type="RosWorld.py" name="RosWorld" output="screen">
   </node>
 
 </launch>

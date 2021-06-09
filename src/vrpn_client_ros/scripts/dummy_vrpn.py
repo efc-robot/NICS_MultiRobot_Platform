@@ -6,6 +6,7 @@ from geometry_msgs.msg import PoseStamped
 import numpy as np
 import threading
 import argparse
+import sys
 class FakeVrpn(object):
     def __init__(self,name='c0'):
         rospy.init_node("RosWorld")
@@ -80,8 +81,13 @@ def run_fake_object(fake_vrpn):
 if __name__ == '__main__' :
     parser = argparse.ArgumentParser(description="Fake vrpn")
     parser.add_argument('--name',type=str,default='c0')
-    args = parser.parse_args()
-
+    try:
+        args = parser.parse_args()
+    except:
+        args = parser.parse_args([])
+    else:
+        args = parser.parse_args()
+        
     fake_vrpn = FakeVrpn(args.name)
     t = threading.Thread(target=run_fake_object,args=(fake_vrpn,))
     t.setDaemon(True)
