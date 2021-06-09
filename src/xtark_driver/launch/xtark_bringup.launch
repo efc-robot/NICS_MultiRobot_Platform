@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<launch>
+  <param name="use_sim_time" value="false"/>
+  <arg name="lidar_type" value="$(optenv LIDAR_TYPE XAS)"/>
+  <param  name="robot_description" textfile="$(find xtark_driver)/urdf/xtark_akmx1.urdf" />
+
+
+    <!-- 启动xtark_driver驱动包 -->
+  <node name="xtark_driver" pkg="xtark_driver" type="xtark_driver" output="screen" respawn="true">
+		<rosparam file="$(find xtark_driver)/config/xtark_params.yaml" command="load"/>
+		<remap from="/odom" to="/odom_raw"/>
+		<param name="odom_frame" value="odom"/>
+		<param name="publish_odom_transform" value="false"/>
+  </node>
+   
+   <!-- 启动EKF融合定位节点 -->
+  <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" output="screen">
+		<param name="output_frame" value="odom"/>
+		<param name="base_footprint_frame" value="base_footprint"/>
+		<param name="freq" value="30.0"/>
+		<param name="sensor_timeout" value="0.5"/>
+		<param name="odom_used" value="true"/>
+		<param name="imu_used"  value="true"/>
+		<param name="vo_used"   value="false"/>
+		<remap from="odom" to="/odom_raw"/>
+		<remap from="/imu_data" to="/imu"/>
+		<remap from="/robot_pose_ekf/odom_combined" to="/odom_combined"/>
+  </node>
+  
+  <node pkg="xtark_driver" type="odom_ekf.py" name="odom_ekf_node" output="screen">
+		<remap from="input" to="/odom_combined"/>
+		<remap from="output" to="/odom"/>
+  </node>
+
+   <!-- 启动激光雷达驱动包  -->
+  <group if="$(eval arg('lidar_type') == 'XAS')">
+   		<include file="$(find rplidar_ros)/launch/rplidar_filtered.launch" />
+        <node pkg="tf" type="static_transform_publisher" name="base_foot_print_to_laser" args="0.05 0 0.1 3.1415926 0 0 base_footprint laser 20"/>
+  </group>
+
+  <group if="$(eval arg('lidar_type') == 'XT1')"> 
+		<include file="$(find sc_mini)/launch/start_withfilter.launch"/>
+        <node pkg="tf" type="static_transform_publisher" name="base_foot_print_to_laser" args="0.1 0 0.1 -1.57 0 0 base_footprint laser 20"/>
+  </group>
+  <group if="$(eval arg('lidar_type') == 'YT1')"> 
+		<include file="$(find sc_mini)/launch/start_withfilter.launch"/>
+        <node pkg="tf" type="static_transform_publisher" name="base_foot_print_to_laser" args="0.0 0 0.1 3.1415926 0 0 base_footprint laser 20"/>
+  </group>
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="log" name="laser_filter">
+		<rosparam command="load" file="$(find xtark_driver)/config/xtark_laserfilter.yaml"/>
+		<remap from="/scan" to="/scan_raw"/>
+		<remap from="/scan_filtered" to="/scan"/>
+  </node>
+  <node  name="robot_state_publisher"  pkg="robot_state_publisher" type="robot_state_publisher" />
+ 
+  <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_imu" args="-0.1 0 0.05 0 0 0 base_footprint base_imu_link 20"/>
+
+</launch>

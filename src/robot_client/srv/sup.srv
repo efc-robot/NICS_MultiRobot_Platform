@@ -1,0 +1,5 @@
+int32 car_id
+bool movable
+bool collision
+---
+bool result

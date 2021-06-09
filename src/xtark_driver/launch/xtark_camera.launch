@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="device_id" default="0" />
+    <arg name="resolution" default="480p"/>
+    
+
+    <group if="$(eval arg('resolution') == '480p')">
+	<include file="$(find xtark_driver)/launch/include/xtark_cv_camera_driver.launch">
+    		<arg name="image_width" value="640"/>
+    		<arg name="image_height" value="480"/>
+                <arg name="camera_info_url" value="file://$(find xtark_driver)/config/camera_calib/cam_480p.yaml"/>
+	</include>	
+    </group>
+    <group if="$(eval arg('resolution') == '720p')">
+	<include file="$(find xtark_driver)/launch/include/xtark_cv_camera_driver.launch">
+    		<arg name="image_width" value="1280"/>
+    		<arg name="image_height" value="720"/>
+                <arg name="camera_info_url" value="file://$(find xtark_driver)/config/camera_calib/cam_720p.yaml"/>
+	</include>	
+    </group>
+    <group if="$(eval arg('resolution') == '1080p')">
+	<include file="$(find xtark_driver)/launch/include/xtark_cv_camera_driver.launch">
+    		<arg name="image_width" value="1920"/>
+    		<arg name="image_height" value="1080"/>
+                <arg name="camera_info_url" value="file://$(find xtark_driver)/config/camera_calib/cam_1080p.yaml"/>
+	</include>	
+    </group>
+
+    <node name="web_video_server" pkg="web_video_server" type="web_video_server" output="screen"/>
+</launch>
+

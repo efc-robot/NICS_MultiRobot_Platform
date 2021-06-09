@@ -1,0 +1,5 @@
+int32 car_id
+---
+float32[] ego_coordinate
+float32[] target_coordinate
+float32[] teamate_coordinate
