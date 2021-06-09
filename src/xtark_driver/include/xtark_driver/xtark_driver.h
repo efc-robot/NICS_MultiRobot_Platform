@@ -33,7 +33,7 @@
 #define sendType_pid         0x12
 #define sendType_params      0x13
 #define sendType_wheelspeed  0x14
-#define CAR_ID "c0"
+
 #define foundType_Packages    0x06
 
 //#define MAX_STEERING_ANGLE    0.87
