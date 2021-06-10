@@ -12,8 +12,7 @@ def mac2id(mac):
     assert mac in mac2id_table.keys()
     return mac2id_table[mac]
 
-def export_id(id,prefix='car_'):
-    os.system('export CAR_ID='+prefix+id)
 
 if __name__ == '__main__':
-    export_id(mac2id(get_mac_address), prefix='car_')
+    print('car_'+mac2id(get_mac_address()))
+    

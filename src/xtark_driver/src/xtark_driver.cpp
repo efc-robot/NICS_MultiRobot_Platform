@@ -63,14 +63,14 @@ void XtarkDriver::loop()
     /*初始化机器人硬件串口以及publisher发布器和定时器与动态配置参数服务器等的回调函数，然后进入ros::spin()循环*/
     if(initRobot())
     {
-        odom_pub_    = nh_.advertise<nav_msgs::Odometry>(std::string(CAR_ID)+std::string("/odom"),10);
-        battery_pub_ = nh_.advertise<std_msgs::Float32>(std::string(CAR_ID)+std::string("/voltage"),1);
-        imu_pub_     = nh_.advertise<sensor_msgs::Imu>(std::string(CAR_ID)+std::string("/imu"),10);
-        lvel_pub_    = nh_.advertise<std_msgs::Int32>(std::string(CAR_ID)+std::string("/xtark/lvel"),10);
-        rvel_pub_    = nh_.advertise<std_msgs::Int32>(std::string(CAR_ID)+std::string("/xtark/rvel"),10);
-        lset_pub_    = nh_.advertise<std_msgs::Int32>(std::string(CAR_ID)+std::string("/xtark/lset"),10);
-        rset_pub_    = nh_.advertise<std_msgs::Int32>(std::string(CAR_ID)+std::string("/xtark/rset"),10);
-        cmd_sub_     = nh_.subscribe<geometry_msgs::Twist>(std::string(CAR_ID)+std::string("/cmd_vel"),10,&XtarkDriver::cmd_vel_callback,this);
+        odom_pub_    = nh_.advertise<nav_msgs::Odometry>(std::string("odom"),10);
+        battery_pub_ = nh_.advertise<std_msgs::Float32>(std::string("voltage"),1);
+        imu_pub_     = nh_.advertise<sensor_msgs::Imu>(std::string("imu"),10);
+        lvel_pub_    = nh_.advertise<std_msgs::Int32>(std::string("xtark/lvel"),10);
+        rvel_pub_    = nh_.advertise<std_msgs::Int32>(std::string("xtark/rvel"),10);
+        lset_pub_    = nh_.advertise<std_msgs::Int32>(std::string("xtark/lset"),10);
+        rset_pub_    = nh_.advertise<std_msgs::Int32>(std::string("xtark/rset"),10);
+        cmd_sub_     = nh_.subscribe<geometry_msgs::Twist>(std::string("cmd_vel"),10,&XtarkDriver::cmd_vel_callback,this);
         //cmd_sub_     = nh_.subscribe<geometry_msgs::Twist>("cmd_vel",10,&XtarkDriver::cmd_vel_callback,this);
         SetParams(linear_correction_factor_,servo_bias_);
         ros::Duration(0.02).sleep();
