@@ -9,9 +9,10 @@ def mac2id(mac):
                     'e4:5f:01:00:d3:d8':'2',
                     'e4:5f:01:00:d4:5c':'3',
                     'e4:5f:01:00:d3:ae':'4'}
-    assert mac in mac2id_table.keys()
-    return mac2id_table[mac]
-
+    if mac in mac2id_table.keys():
+        return mac2id_table[mac]
+    else:
+        return 'dummy'
 
 if __name__ == '__main__':
     print('car_'+mac2id(get_mac_address()))
