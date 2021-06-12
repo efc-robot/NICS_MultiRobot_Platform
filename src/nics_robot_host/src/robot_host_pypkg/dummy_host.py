@@ -2,27 +2,15 @@
 
 import threading
 import time
-from rosgraph import xmlrpc
+
 import rospy
-import numpy as np
-import argparse 
+
 import rosnode
 import copy
 import threading
 
-from nics_ros_host.srv import *
-from MultiVehicleEnv.environment import MultiVehicleEnv
-import MultiVehicleEnv.scenarios as scenarios
+from nics_robot_host.srv import *
 
-def make_env(scenario_name, args):
-    # load scenario from script
-    scenario = scenarios.load(scenario_name + ".py").Scenario()
-    # create world
-    world = scenario.make_world(args)
-    # create multiagent environment
-
-    env = MultiVehicleEnv(world, scenario.reset_world, scenario.reward, scenario.observation,scenario.info)
-    return env
 
 class pos_data(object):
     def __init__(self,x,y,theta):
@@ -31,7 +19,7 @@ class pos_data(object):
         self.theta = theta
 
 class FakeHost(object):
-    def __init__(self, args, env:MultiVehicleEnv):
+    def __init__(self, args, env):
         # get agent number from env
         self.agent_num = len(env.vehicle_list)
         # init host node
@@ -72,7 +60,8 @@ class FakeHost(object):
         rospy.loginfo("Calculate obs for car %s",car_id)
         car_index = self.car_id_list.index(car_id)
         agent = self.env.vehicle_list[car_index]
-        obs_result = self.env._get_obs(agent)     
+        obs_result = self.env._get_obs(agent)
+        print(obs_result) 
         return obsResponse(obs_result)
 
     def core_function(self):
@@ -99,28 +88,3 @@ class FakeHost(object):
             state.coordinate[0] = vrpn_data.x
             state.coordinate[1] = vrpn_data.y
             state.theta = vrpn_data.theta
-
-
-
-if __name__ == '__main__':
-
-
-    parser = argparse.ArgumentParser(description="GUI for Multi-VehicleEnv")
-    parser.add_argument('--gui-port',type=str,default='/dev/shm/gui_port')
-    parser.add_argument('--usegui', action='store_true', default=False)
-    parser.add_argument('--step-t',type=float,default=1.0)
-    parser.add_argument('--sim-step',type=int,default=100)
-    parser.add_argument('--direction_alpha', type=float, default=1.0)
-    parser.add_argument('--add_direction_encoder',type=str, default='train')
-
- 
-    try:
-        args = parser.parse_args()
-    except:
-        args = parser.parse_args([])
-    else:
-        args = parser.parse_args()
-
-
-    env = make_env('3p2t2f', args)
-    fake_host = FakeHost(args, env)

@@ -2,11 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import rospy
-import math
 from vrpn_client_ros.msg import global_state
-import struct
-import PyKDL as kdl
-import threading
 import argparse
 
 def callback(msg,arg):

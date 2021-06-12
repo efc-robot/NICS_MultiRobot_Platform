@@ -11,3 +11,4 @@ class inference_handle(object):
     def inferece(self, obs):
         action = self.dummy_action.numpy()
         return action
+import os

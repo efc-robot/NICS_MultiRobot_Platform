@@ -2,6 +2,6 @@
     <param name="use_sim_time" value="false"/>
 
     <!-- 启动my节点 -->
-    <node name="robot_client" pkg="robot_client" type="robot_client.py" output="screen" respawn="false"/>
+    <node name="robot_client" pkg="nics_robot_client" type="robot_client_node.py" ns="$(env CAR_ID)" output="screen" respawn="false"/>
 
 </launch>
