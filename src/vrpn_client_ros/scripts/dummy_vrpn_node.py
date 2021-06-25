@@ -8,9 +8,9 @@ import threading
 import argparse
 import sys
 class FakeVrpn(object):
-    def __init__(self,name='c0'):
-        rospy.init_node("RosWorld")
-        self.pub = rospy.Publisher('/vrpn_client_node/'+name, PoseStamped , queue_size=10)
+    def __init__(self,name='car_0'):
+        rospy.init_node("dummpy_vrpn")
+        self.pub = rospy.Publisher('/vrpn_client_node/'+name+'/pose', PoseStamped , queue_size=10)
     
     def pubmsg(self, msg):
         self.pub.publish(msg)
@@ -80,7 +80,7 @@ def run_fake_object(fake_vrpn):
 
 if __name__ == '__main__' :
     parser = argparse.ArgumentParser(description="Fake vrpn")
-    parser.add_argument('--name',type=str,default='c0')
+    parser.add_argument('--name',type=str,default='car_0')
     try:
         args = parser.parse_args()
     except:
