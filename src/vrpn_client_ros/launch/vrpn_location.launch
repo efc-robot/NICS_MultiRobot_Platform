@@ -5,7 +5,7 @@
   <node pkg="vrpn_client_ros" type="vrpn_client_node" name="vrpn_client_node" output="screen">
     <rosparam subst_value="true">
       #server: $(arg server)
-      server: 172.16.1.92
+      server: 192.168.50.243 
       port: 3883
 
       update_frequency: 10.0

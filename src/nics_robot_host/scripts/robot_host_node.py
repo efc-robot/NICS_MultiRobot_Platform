@@ -23,6 +23,8 @@ if __name__ == '__main__':
     parser.add_argument('--usegui', action='store_true', default=False)
     parser.add_argument('--step-t',type=float,default=1.0)
     parser.add_argument('--sim-step',type=int,default=100)
+    parser.add_argument('--reward_coef',type=float,default=0)
+    parser.add_argument('--control_coef',type=float,default=0)
 
  
     try:

@@ -65,17 +65,32 @@ class RobotHost(object):
         self.ros_spin_thread.setDaemon(True)
         self.ros_spin_thread.start()
 
-        start_flag = False
+        state_flag = 'wait for pos'
         while True:
-            cmd = input('waiting for cmd: ')
-            if cmd == 'start' and not start_flag:
-                start_flag = True
-                rospy.loginfo('3')
-                time.sleep(1)
-                rospy.loginfo('2')
-                time.sleep(1)
-                rospy.loginfo('1')
-                time.sleep(1)
+            cmd = input('state is %s, waiting for cmd '%state_flag)
+            
+            if state_flag == 'wait for pos':
+                if cmd == 'pos':
+                    self.env.reset()
+                    while True:
+                        result = self.waiting_for_vehicle()
+                        if result is True:
+                            rospy.loginfo('all agent is ready')
+                            break
+                        else:
+                            rospy.loginfo(result)
+                            time.sleep(1.0)
+                    state_flag = 'wait for start'
+                    rospy.loginfo('pos mode reset')
+                
+                if cmd == 'random':
+                    self.env.reset()
+                    self.random_set_vehicle()
+                    state_flag = 'wait for start'
+                    rospy.loginfo('random mode reset')
+
+            if cmd == 'start' and state_flag == 'wait for start':
+                state_flag = 'start'
                 rospy.loginfo('start!')
                 
                 self.core_thread = threading.Thread(target=self.core_function)
@@ -90,7 +105,39 @@ class RobotHost(object):
             if cmd == 'exit':
                 rospy.signal_shutdown('exit')
                 break
-        
+            
+    def random_set_vehicle(self):
+        for agent, pos in zip(self.env.vehicle_list, self.vrpn_list):
+            agent.state.coordinate[0] = pos.x
+            agent.state.coordinate[1] = pos.y
+            agent.state.theta = pos.theta
+
+    def waiting_for_vehicle(self):
+        def near_enough(x, y, yaw, x_t, y_t, yaw_t):
+            #not near_enough distance of agent and the reset agent larger than 0.01m
+            if ((x-x_t)**2 + (y-y_t)**2)**0.5 > 0.01:
+                return False
+            #if yaw and yaw_t distance is larger than 5 degree
+            sin_con = math.sin(abs(yaw - yaw_t))<math.sin(5/180*3.1415)
+            cos_con = math.cos(abs(yaw - yaw_t))>math.cos(5/180*3.1415)
+            if not(sin_con and cos_con):
+                return False
+            return True
+
+        for idx, agent, pos in zip(range(len(self.env.vehicle_list), self.env.vehicle_list, self.vrpn_list)):
+            x_t = agent.state.coordinate[0]
+            y_t = agent.state.coordinate[1]
+            yaw_t = agent.state.theta
+            x = pos.x
+            y = pos.y
+            yaw = pos.theta
+            if not near_enough(x,y,yaw,x_t,y_t,yaw_t):
+                info_str = "%s pos is (%f, %f, %f) but (%f, %f, %f) is required" %(self.car_id_list[idx], x,y,yaw, x_t,y_t,yaw_t)
+                return info_str
+
+        return True
+
+
     def update_vrpn_pose(self, msg, vehicle_idx):
 
         #seq = msg.header.seq
