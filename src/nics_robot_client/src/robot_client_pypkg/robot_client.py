@@ -4,7 +4,7 @@ import numpy as np
 import time,threading
 from geometry_msgs.msg import Twist
 from nics_robot_client.srv import *
-from .inference import inference_handle
+
 
 
 class RobotClient(object):
@@ -12,7 +12,7 @@ class RobotClient(object):
         self.car_id=id_str
         rospy.init_node('robot_client')
 
-        self.inference_fps = 1.0
+        self.inference_fps = 5.0
         self.send_velocity_fps = 20.0
 
         self.inference_twist = Twist()
@@ -36,18 +36,19 @@ class RobotClient(object):
             time.sleep(1)
 
     def inference_target(self):
-        self.inference_handle = inference_handle()
-        self.inference_handle.load_model()
+        #self.inference_handle = inference_handle()
+        #self.inference_handle.load_model()
 
-        self.get_obs_service_name = '/'+ self.car_id +'/get_obs'
-        rospy.wait_for_service(self.get_obs_service_name)
-        self.get_obs_client=rospy.ServiceProxy(self.get_obs_service_name, obs)
+        self.inference_service_name = '/'+ self.car_id +'/inference'
 
+        rospy.wait_for_service(self.inference_service_name)
+        self.inference_client=rospy.ServiceProxy(self.inference_service_name, infer)
+
+        rate = rospy.Rate(self.inference_fps)
         while True:
-            self.car_obs=self.get_obs_client()
-            action = self.inference_handle.inferece(self.car_obs)
-            self.action_to_velocity(action)
-            time.sleep(1.0/self.inference_fps)
+            action = self.inference_client()
+            self.action_to_velocity(action.act_vector)
+            rate.sleep()
 
     def action_to_velocity(self, action):
         self.inference_twist.linear.x = action[0]
@@ -60,6 +61,7 @@ class RobotClient(object):
     def send_velocity_target(self):
         """下端所接串口发送频率50Hz，此线程不要有太多计算"""
         self.pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
+        rate = rospy.Rate(self.send_velocity_fps)
         while True:
             send_twist = Twist()
             send_twist.linear.x = self.inference_twist.linear.x * self.movable
@@ -69,7 +71,7 @@ class RobotClient(object):
             send_twist.angular.y = self.inference_twist.angular.y * self.movable
             send_twist.angular.z = self.inference_twist.angular.z * self.movable
             self.pub.publish(send_twist)
-            time.sleep(1.0/self.send_velocity_fps)
+            rate.sleep()
 
     def client_control_target(self):
         self.car_allready=rospy.Service('client_control', sup, self.client_control)

@@ -1,1 +1,1 @@
-scp -r ./src/nics_robot_client xtark@$1:/home/xtark/NICS_MultiRobot_Platform/src/
+sshpass -p xtark scp -r /home/ubuntu/project/NICS_MultiRobot_Platform/src/nics_robot_client xtark@$1:/home/xtark/NICS_MultiRobot_Platform/src/nics_robot_client

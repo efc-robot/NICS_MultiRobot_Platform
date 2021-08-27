@@ -1,0 +1,6 @@
+<launch>
+
+  #<arg name="server" default="localhost"/>
+  <node pkg="vrpn_client_ros" type="record.py" name="record" output="screen">
+  </node>
+</launch>

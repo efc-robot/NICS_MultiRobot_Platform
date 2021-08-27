@@ -11,7 +11,7 @@ def make_env(scenario_name, args):
     world = scenario.make_world(args)
     # create multiagent environment
 
-    env = MultiVehicleEnv(world, scenario.reset_world, scenario.reward, scenario.observation,scenario.info)
+    env = MultiVehicleEnv(world, scenario.reset_world, scenario.reward, scenario.observation,scenario.info,None,scenario.ros_updata_callback)
     return env
 
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="GUI for Multi-VehicleEnv")
     parser.add_argument('--gui-port',type=str,default='/dev/shm/gui_port')
-    parser.add_argument('--usegui', action='store_true', default=False)
+    parser.add_argument('--usegui', action='store_true', default=True)
     parser.add_argument('--step-t',type=float,default=1.0)
     parser.add_argument('--sim-step',type=int,default=100)
     parser.add_argument('--reward_coef',type=float,default=0)
@@ -35,5 +35,5 @@ if __name__ == '__main__':
         args = parser.parse_args()
 
 
-    env = make_env('sparse', args)
+    env = make_env('multi_reach_road', args)
     RobotHost = RobotHost(args, env)

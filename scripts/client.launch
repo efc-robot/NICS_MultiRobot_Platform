@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find nics_robot_client)/launch/robot_client.launch" />
+    <include file="$(find xtark_driver)/launch/xtark_driver.launch" />
+</launch>

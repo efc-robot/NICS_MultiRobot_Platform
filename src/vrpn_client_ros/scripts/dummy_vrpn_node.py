@@ -80,7 +80,7 @@ def run_fake_object(fake_vrpn):
 
 if __name__ == '__main__' :
     parser = argparse.ArgumentParser(description="Fake vrpn")
-    parser.add_argument('--name',type=str,default='car_0')
+    parser.add_argument('--name',type=str,default='AKM_2')
     try:
         args = parser.parse_args()
     except:
