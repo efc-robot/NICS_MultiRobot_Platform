@@ -73,6 +73,7 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
  generate_messages(
    DEPENDENCIES
+   geometry_msgs
    std_msgs  # Or other packages containing msgs
  )
 

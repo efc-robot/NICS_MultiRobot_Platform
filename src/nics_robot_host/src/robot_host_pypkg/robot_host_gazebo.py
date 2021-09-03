@@ -6,15 +6,18 @@ import rosnode
 import copy
 import threading
 from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import TwistStamped
+from sensor_msgs.msg import LaserScan
 from nics_robot_host.srv import *
 from rospy.core import rospyinfo
 
-class RobotHost(object):
+
+class RobotHostGazebo(object):
     def __init__(self, args, env):
         # get agent number from env
         self.agent_num = len(env.world.vehicle_list)
         # init host node
-        rospy.init_node("robot_host")
+        rospy.init_node("robot_host_gazebo")
 
         # TODO get this param from launch file
         self.core_fps = 10
@@ -38,24 +41,19 @@ class RobotHost(object):
         #build observation services
         self.obs_server_list = []
         for vehicle_id in self.vehicle_id_list:
-            obs_messenger = rospy.Service(name='/'+vehicle_id+'/get_obs',
-                                          service_class=obs,
-                                          handler= (lambda a:lambda msg: self.obs_calculate(msg, a))(vehicle_id,))
-                                          
+            handle = lambda req: self.obs_calculate(vehicle_id,req)
+            obs_messenger = rospy.Service('/'+vehicle_id+'/get_obs', obs, handle)
             self.obs_server_list.append(obs_messenger)
 
-        
         # update the agent data_interface
         self.env = env
-        new_interface = {}
         for vehicle_idx in range(self.agent_num):
             vehicle_id = self.vehicle_id_list[vehicle_idx]
             vehicle = self.env.world.vehicle_list[vehicle_idx]
             old_id = vehicle.vehicle_id
             vehicle.vehicle_id = vehicle_id
-            new_interface[vehicle_id] = self.env.world.data_interface.pop(old_id)
-        self.env.world.data_interface = new_interface
-
+            interface = self.env.world.data_interface
+            interface[vehicle_id] = interface.pop(old_id)
         
         # waiting for all topic
         self.ros_data_interface = {}
@@ -67,7 +65,7 @@ class RobotHost(object):
             print(ros_data)
         
         #check for all topic
-        rospyinfo('check for all topic ready')
+        rospy.loginfo('check for all topic ready')
         all_data_interface_ready = False
         while not all_data_interface_ready:
             all_data_interface_ready = True
@@ -88,7 +86,6 @@ class RobotHost(object):
                         self.ros_data_interface[v_id][data_name] = True
             rospy.sleep(1.0)
 
-
         self.ros_data_interface_sub = []
         #subscribe all ros data interface
         for vehicle_id in self.vehicle_id_list:
@@ -96,10 +93,7 @@ class RobotHost(object):
                 # handle = lambda msg: store_data_2(msg, self.ros_data_interface, vehicle_id, data_name)
                 topic_name = '/'+vehicle_id+'/'+data_name
                 data_class = rostopic.get_topic_class(topic_name)[0]
-                sub = rospy.Subscriber(name = '/'+vehicle_id+'/'+data_name,
-                                       data_class=data_class,
-                                       callback=self.store_data,
-                                       callback_args=(vehicle_id, data_name))
+                sub = rospy.Subscriber('/'+vehicle_id+'/'+data_name, data_class, self.store_data, (vehicle_id, data_name))
                 self.ros_data_interface_sub.append(sub)
         for sub in self.ros_data_interface_sub:
             print('sub_name',sub.name)
@@ -111,8 +105,6 @@ class RobotHost(object):
             rospy.wait_for_service(client_ctrl_name)
             self.client_ctrl_srv.append(rospy.ServiceProxy(client_ctrl_name,sup))
         
-        
-
         self.ros_spin_thread = threading.Thread(target=rospy.spin)
         self.ros_spin_thread.setDaemon(True)
         self.ros_spin_thread.start()
@@ -138,6 +130,7 @@ class RobotHost(object):
                 if cmd == 'random':
                     self.env.reset()
                     for agent in self.env.world.vehicle_list:
+                        # print(self.ros_data_interface)
                         ros_data_interface = self.ros_data_interface[agent.vehicle_id]
                         agent.state.coordinate[0] = ros_data_interface['pose'].twist.linear.x
                         agent.state.coordinate[1] = ros_data_interface['pose'].twist.linear.y
@@ -155,10 +148,9 @@ class RobotHost(object):
 
                 for idx in range(len(self.vehicle_id_list)):
                     sup_arg = supRequest()
-                    sup_arg.start = True
-                    sup_arg.movable = True
-                    sup_arg.collision = False
-                    self.client_ctrl_srv[idx](sup_arg)
+                sup_arg.movable = True
+                sup_arg.collision = False
+                self.client_ctrl_srv[idx](sup_arg)
             if cmd == 'exit':
                 rospy.signal_shutdown('exit')
                 break
@@ -194,11 +186,12 @@ class RobotHost(object):
         data_name = args[1]
         self.ros_data_interface[v_id][data_name] = copy.deepcopy(msg)
 
-    def obs_calculate(self,req,vehicle_id):
+    def obs_calculate(self,vehicle_id,req):
         rospy.loginfo("Calculate obs for car %s",vehicle_id)
         car_index = self.vehicle_id_list.index(vehicle_id)
         agent = self.env.world.vehicle_list[car_index]
         obs_result = self.env._get_obs(agent)
+        print(obs_result) 
         return obsResponse(obs_result)
 
     def core_function(self):
@@ -213,7 +206,6 @@ class RobotHost(object):
                 v = self.env.world.vehicle_list[v_idx]
                 if not(v.state.movable == old_movable_list[v_idx]):
                     sup_arg = supRequest()
-                    sup_arg.start = True
                     sup_arg.movable = v.state.movable
                     sup_arg.collision = v.state.crashed
                     self.client_ctrl_srv[v_idx](sup_arg)

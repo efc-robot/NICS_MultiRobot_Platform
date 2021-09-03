@@ -1,5 +1,7 @@
 int32 car_id
+bool start
 bool movable
 bool collision
 ---
 bool result
+geometry_msgs/Twist twist

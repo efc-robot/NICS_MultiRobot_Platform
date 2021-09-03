@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="nics_robot_host" type="robot_host_node_gazebo.py" name="robot_host_gazebo" output="screen">
+  </node>
+
+</launch>

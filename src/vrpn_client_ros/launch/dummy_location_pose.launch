@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find vrpn_client_ros)/launch/dummy_vrpn.launch" />
+    <include file="$(find vrpn_client_ros)/launch/vrpn_pose.launch" />
+</launch>

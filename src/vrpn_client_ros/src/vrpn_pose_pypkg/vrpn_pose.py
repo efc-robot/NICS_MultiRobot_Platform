@@ -23,14 +23,14 @@ class VrpnPose(object):
                 if vrpn_topic_split[1] == prefix and vrpn_topic_split[-1] == postfix:
                     car_id = vrpn_topic_split[2]
                     if car_id not in self.transfer.keys():
-                        handle = lambda msg: self.transfer_callback(msg,car_id)
-                        sub = rospy.Subscriber(vrpn_topic_name, PoseStamped, handle)
+                        sub = rospy.Subscriber(vrpn_topic_name, PoseStamped, self.transfer_callback,(car_id,))
                         pub = rospy.Publisher('/'+car_id+'/pose',TwistStamped)
                         self.transfer[car_id] = {'sub':sub, 'pub':pub}
             print(self.transfer)
             time.sleep(1)
 
-    def transfer_callback(self, msg:PoseStamped, car_id):
+    def transfer_callback(self, msg:PoseStamped, args):
+        car_id = args[0]
         qx = msg.pose.orientation.x
         qy = msg.pose.orientation.y
         qw = msg.pose.orientation.w

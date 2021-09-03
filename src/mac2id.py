@@ -8,7 +8,7 @@ def mac2id(mac):
     mac2id_table['e4:5f:01:00:d4:20'] = 'AKM_1'
     mac2id_table['e4:5f:01:00:d3:d8'] = 'AKM_2'
     mac2id_table['e4:5f:01:00:d4:5c'] = 'AKM_3'
-    mac2id_table['e4:5f:01:00:d3:ae'] = 'AKM_4'
+    mac2id_table['e4:5f:01:1b:a2:39'] = 'AKM_4'
     mac2id_table['e4:5f:01:1b:9e:ca'] = 'AKM_5'
     mac2id_table['e0:d5:5e:26:58:85'] = 'host_0'
     

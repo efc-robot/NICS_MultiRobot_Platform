@@ -10,7 +10,7 @@ from nics_robot_client.srv import *
 class RobotClient(object):
     def __init__(self,id_str):
         self.car_id=id_str
-        rospy.init_node('robot_client')
+        rospy.init_node('robot_client')   ### Edit by tjh, 31/8/2021
 
         self.inference_fps = 5.0
         self.send_velocity_fps = 20.0
@@ -36,8 +36,6 @@ class RobotClient(object):
             time.sleep(1)
 
     def inference_target(self):
-        #self.inference_handle = inference_handle()
-        #self.inference_handle.load_model()
 
         self.inference_service_name = '/'+ self.car_id +'/inference'
 
@@ -46,9 +44,15 @@ class RobotClient(object):
 
         rate = rospy.Rate(self.inference_fps)
         while True:
-            action = self.inference_client()
-            self.action_to_velocity(action.act_vector)
-            rate.sleep()
+            if self.run_state:
+                try:
+                    action = self.inference_client()
+                    self.action_to_velocity(action.act_vector)
+                    rate.sleep()
+                except rospy.ServiceException as exc:
+                    print("Can not get action: " + str(exc))
+            else:
+                rospy.sleep(0.1)
 
     def action_to_velocity(self, action):
         self.inference_twist.linear.x = action[0]
@@ -79,10 +83,13 @@ class RobotClient(object):
         self.car_allready.spin()
 
     def client_control(self,req):
-        self.run_state = 1
+        self.run_state = req.start
         rospy.loginfo("client_req")
         if req.collision:
             self.movable=0
         else:
             self.movable=req.movable
-        return supResponse(True)
+        rep = supResponse()
+        rep.result = True
+        rep.twist = self.inference_twist
+        return rep

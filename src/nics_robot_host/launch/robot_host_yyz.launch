@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="nics_robot_host" type="robot_host_yyz_node.py" name="robot_host" output="screen">
+  </node>
+
+</launch>

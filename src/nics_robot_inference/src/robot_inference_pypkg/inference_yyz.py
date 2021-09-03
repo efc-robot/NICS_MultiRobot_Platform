@@ -82,6 +82,10 @@ class RobotInference(object):
 
     def inference(self, req):
         obs = self.get_obs_client()
+        action = self.inference_core(obs)
+        return inferResponse(action)
+
+    def inference_core(self,obs):
         obs = np.zeros((self.all_args.num_agents, 7), dtype=np.float32)
         masks = np.ones((self.all_args.num_agents, 1), dtype=np.float32)
         action, self.rnn_states = self.trainer.policy.act(obs,                                    # 3,7
@@ -96,4 +100,4 @@ class RobotInference(object):
         # K_phi = 0.298
         # target_phi = [ action[i][1] * K_phi for i in range(self.args.num_agents) ]
         action = tuple(action[0])
-        return inferResponse(action)
+        return action

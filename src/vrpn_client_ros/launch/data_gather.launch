@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="vrpn_client_ros" type="data_gather.py" name="data_gather" output="screen">
+  </node>
+</launch>

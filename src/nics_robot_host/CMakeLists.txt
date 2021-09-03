@@ -10,6 +10,7 @@ project(nics_robot_host)
 find_package(catkin REQUIRED COMPONENTS
              roscpp
              rospy
+             geometry_msgs
              message_generation)
              
 ## System dependencies are found with CMake's conventions
@@ -71,6 +72,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   std_msgs  # Or other packages containing msgs
+  geometry_msgs
 )
 
 ################################################
